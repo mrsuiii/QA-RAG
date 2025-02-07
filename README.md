@@ -9,19 +9,23 @@ This project implements a Retrieval-Augmented Generation (RAG) system for techni
 - [System Architecture Overview](#system-architecture-overview)
 - [Setup Instructions](#setup-instructions)
 - [API Usage Examples](#api-usage-examples)
+- [RAG Evaluation](#rag-evaluation)
 - [Explanation of RAG Implementation Choices](#explanation-of-rag-implementation-choices)
 - [Ideas for Future Improvements](#ideas-for-future-improvements)
 
 ---
 ## Features
-- **PDF / Markdown Ingestion**: Easily upload PDF or Markdown files, split it and create vector embeddings in the backend.
+- **PDF / Markdown Ingestion and preprocessing**: Easily upload PDF or Markdown files, split it and create vector embeddings in the backend.
 - **Retrieval-Augmented Generation**: Combines language model capabilities with context retrieved from the ingested documents.
+- **Basic RAG evaluation**: Perform basic evaluation to RAG system.
 - **Metrics & Monitoring**:
   - Total requests
   - Success/failure rates
   - Average response times
   - Token usage
 - **Security**: Requires an API key (sent in the `X-API-Key` header).
+- **Swagger Documentations**: Api documentations in `YOUR_HOST/docs`
+
 
 ## System Architecture Overview
 This diagram explain Question answering mechanism\
@@ -61,7 +65,8 @@ cd QA-RAG
 ```
 
 ---
-### 2. Create .env file in the same level as docker-compose and write
+### 2. Create .env 
+create .env file in the same level as docker-compose and write
 ```
 API_KEY = any key you want
 ```
@@ -204,8 +209,16 @@ To run the FastAPI server locally, use the following command:
 uvicorn main:app --host 0.0.0.0 --port 8001 --reload
 ```
 ---
+### RAG Evaluation
+To perform RAG evaluation you must go to rag directory in your app container and go to rag directory and run eval.py. It will perform evaluation with basic accuracy metric.
+```
+python eval.py
+```
+
+---
 ## Explanation of RAG Implementation Choices
-![alt text](rag.png)
+![alt text](rag.png)\
+(This picture i got from https://llmstack.ai/assets/images/rag-f517f1f834bdbb94a87765e0edd40ff2.png but basically the implementation architecture is same as mine so i just use this picture).\
 The system adopts a Basic Retrieval-Augmented Generation (RAG) approach. 
 1. User input a query.
 2. System embedd the query into vector and do similarity search in vector stores to find 5 relevan chunks.
@@ -249,8 +262,8 @@ Here are the key design decisions behind its implementation:
 
 1. **Scalability & Performance:**
    - **Distributed Vector Store:** Consider migrating to a distributed vector store solution to handle larger datasets and increased query loads.
-   - **Load Balancing:** Implement load balancing for both the FastAPI and LLM services to better manage high traffic.
    - **Caching Strategies:** Introduce caching for frequently queried responses to reduce computational overhead.
+   - **GPU Usage:** Use GPU instead of CPU for llm inferencing will certainly improve the response time.
 
 2. **Enhanced Security:**
    - **Advanced Authentication:** Implement robust authentication mechanisms such as OAuth2 or JWT to secure API endpoints.
