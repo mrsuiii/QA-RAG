@@ -64,7 +64,8 @@ cd QA-RAG
 ```
 
 ---
-### 2. Create .env file in the same level as docker-compose and write
+### 2. Create .env 
+create .env file in the same level as docker-compose and write
 ```
 API_KEY = any key you want
 ```
