@@ -15,7 +15,7 @@ This project implements a Retrieval-Augmented Generation (RAG) system for techni
 
 ---
 ## Features
-- **PDF / Markdown Ingestion**: Easily upload PDF or Markdown files, split it and create vector embeddings in the backend.
+- **PDF / Markdown Ingestion and preprocessing**: Easily upload PDF or Markdown files, split it and create vector embeddings in the backend.
 - **Retrieval-Augmented Generation**: Combines language model capabilities with context retrieved from the ingested documents.
 - **Basic RAG evaluation**: Perform basic evaluation to RAG system.
 - **Metrics & Monitoring**:
@@ -24,7 +24,8 @@ This project implements a Retrieval-Augmented Generation (RAG) system for techni
   - Average response times
   - Token usage
 - **Security**: Requires an API key (sent in the `X-API-Key` header).
-  
+- **Swagger Documentations**: Api documentations in `YOUR_HOST/docs`
+
 
 ## System Architecture Overview
 This diagram explain Question answering mechanism\
