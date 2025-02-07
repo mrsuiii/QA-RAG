@@ -90,7 +90,7 @@ Answer (with citations):
 
         """
         model = OllamaLLM(
-            base_url="http://ollama:11434/api/generate",
+            base_url="http://ollama:11434/",
     model="llama3.2:1b",
     temperature=0.1,
 )
