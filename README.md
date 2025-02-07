@@ -24,7 +24,10 @@ This project implements a Retrieval-Augmented Generation (RAG) system for techni
 - **Security**: Requires an API key (sent in the `X-API-Key` header).
 
 ## System Architecture Overview
-
+This diagram explain Question answering mechanism\
+![alt text](image1.png)\
+This diagram explain Document ingestion mechanism\
+![alt text](image.png)\
 The system is composed of several components:
 
 - **Document Ingestion Service**  
@@ -43,6 +46,14 @@ The system is composed of several components:
   - **chroma:** Runs the Chroma vector store.
 
 This modular architecture allows for scalability and easier maintenance of individual components.
+---
+## Setup Instructions
+```
+
+```
+
+
+
 ---
 ## API Usage Examples
 
@@ -168,14 +179,30 @@ To run the FastAPI server locally, use the following command:
 ```sh
 uvicorn main:app --host 0.0.0.0 --port 8001 --reload
 ```
-
-
-
-
 ---
 ## Explanation of RAG Implementation Choices
 ![alt text](rag.png)
-The system adopts a Retrieval-Augmented Generation (RAG) approach, and here are the key design decisions behind its implementation:
+The system adopts a Basic Retrieval-Augmented Generation (RAG) approach. 
+1. User input a query.
+2. System embedd the query into vector and do similarity search in vector stores to find 5 relevan chunks.
+3. The 5 relevant chunks is augmented into a formatted prompt.
+4. The prompt invoked to LLM instance and will give the response. 
+The prompt is designed so the LLM can answer based on context and give citation in the answer. Here is the prompt template
+"""
+You are a technical documentation assistant.
+Your task is to answer the following question using only the information provided in the context.
+Ensure that your answer is concise, accurate, and directly supported by the context.
+Whenever you reference supporting information, include only its citation in the format [Source ID: n] (do not include any excerpts or snippet text from the context).
+If the context does not contain enough information to answer the question, state that explicitly.
+
+Context:
+{context}
+
+Question: {question}
+
+Answer (with citations): 
+"""\
+Here are the key design decisions behind its implementation:
 
 - **Document Ingestion & Splitting:**  
   - **Loaders:** Specialized loaders (`PyPDFLoader` and `UnstructuredMarkdownLoader`) reliably extract content from PDF and Markdown documents.
@@ -191,7 +218,7 @@ The system adopts a Retrieval-Augmented Generation (RAG) approach, and here are 
   
 - **Docker-Based Deployment:**  
   - The use of Docker Compose ensures that each component (the FastAPI app, Ollama service, and Chroma vector store) runs in a consistent, isolated environment while communicating over a shared network.
-
+  
 ---
 
 ## Ideas for Future Improvements
