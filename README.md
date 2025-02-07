@@ -48,11 +48,35 @@ The system is composed of several components:
 This modular architecture allows for scalability and easier maintenance of individual components.
 ---
 ## Setup Instructions
+
+### 1. Clone the Project Repository
+Run the following command to clone the repository:
+```sh
+git clone https://github.com/mrsuiii/QA-RAG.git
 ```
 
+Change into the project directory:
+```sh
+cd QA-RAG
 ```
 
+---
+### 2. Create .env file in the same level as docker-compose and write
+```
+API_KEY = any key you want
+```
+### 3. Build and Start the Application
+Use Docker Compose to build and start the application(make sure u open the docker desktop first if using windows):
+```sh
+docker compose up -d --build
+```
 
+This command will build the necessary images and start the services in detached mode.
+
+---
+
+### 4. Read the API Usage Examples
+Refer to the [API Usage Examples](#api-usage-examples) for instructions on how to interact with the application.
 
 ---
 ## API Usage Examples
@@ -60,7 +84,7 @@ This modular architecture allows for scalability and easier maintenance of indiv
 ### Authentication
 All requests must include an API key in the header:
 ```http
-X-API-Key: secret (setup in the config)
+X-API-Key: same as in the env file you made
 ```
 
 ---
@@ -74,8 +98,8 @@ X-API-Key: secret (setup in the config)
 #### Request Example:
 ```http
 POST /ingest HTTP/1.1
-Host: 127.0.0.1:8001
-X-API-Key: secret
+Host: YOUR_HOST:8001
+X-API-Key: YOUR_API_KEY
 Content-Type: multipart/form-data
 ```
 **Body:**
@@ -101,8 +125,8 @@ documents: example.pdf or example.md
 #### Request Example:
 ```http
 POST /generate HTTP/1.1
-Host: 127.0.0.1:8001
-X-API-Key: secret
+Host: YOUR_HOST:8001
+X-API-Key: YOUR_API_KEY
 Content-Type: application/json
 ```
 **Body:**
@@ -133,7 +157,7 @@ Content-Type: application/json
 #### Request Example:
 ```http
 GET /stats HTTP/1.1
-Host: 127.0.0.1:8001
+Host: YOUR_HOST:8001
 X-API-Key: YOUR_API_KEY
 ```
 
@@ -161,8 +185,8 @@ X-API-Key: YOUR_API_KEY
 #### Request Example:
 ```http
 DELETE /clear_database HTTP/1.1
-Host: 127.0.0.1:8001
-X-API-Key: secret
+Host: YOUR_HOST:8001
+X-API-Key: YOUR_API_KEY
 ```
 
 #### Response Example:
