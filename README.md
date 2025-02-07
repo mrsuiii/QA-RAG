@@ -208,6 +208,7 @@ The system adopts a Retrieval-Augmented Generation (RAG) approach, and here are 
 3. **Improved RAG Pipeline:**
    - **Dynamic Prompt Engineering:** Develop adaptive prompt templates that adjust based on the query context to improve response quality.
    - **Context Optimization:** Experiment with various text splitting strategies and context window sizes to optimize the retrieval and augmentation process.
+   - **Use Larger Model:** If there is enough resource we can use the larger model such as deepseek or llama larger with larger parameters.
 
 4. **Monitoring & Logging:**
    - **Observability Tools:** Integrate monitoring systems (e.g., Prometheus and Grafana) to track performance metrics and system health.

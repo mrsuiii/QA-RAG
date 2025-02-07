@@ -64,10 +64,10 @@ async def metrics_middleware(request: Request, call_next):
 
 
 @app.post("/ingest", summary = "Upload and ingest a document file (PDF or Markdown).",tags=["Document Ingestion"])
-async def ingest(uploaded_file: UploadFile):
+async def ingest(document: UploadFile):
     """Ingest a document file (PDF or Markdown) by uploading it to the API."""
     # Validate filename
-    filename = uploaded_file.filename
+    filename = document.filename
     global metrics
     metrics["ingest_requests"] += 1
     if not filename or '.' not in filename:
@@ -78,10 +78,10 @@ async def ingest(uploaded_file: UploadFile):
 
     # Validate based on file extension and MIME type.
     if extension == "pdf":
-        if uploaded_file.content_type != "application/pdf":
+        if document.content_type != "application/pdf":
             raise HTTPException(status_code=400, detail="Invalid MIME type for PDF file.")
     elif extension == "md":
-        if uploaded_file.content_type not in ["text/markdown", "text/plain"]:
+        if document.content_type not in ["text/markdown", "text/plain"]:
             raise HTTPException(status_code=400, detail="Invalid MIME type for Markdown file.")
     else:
         raise HTTPException(
@@ -91,7 +91,7 @@ async def ingest(uploaded_file: UploadFile):
 
     try:
         # Read file content once.
-        file_content = await uploaded_file.read()
+        file_content = await document.read()
        
         doc_ingestor = DocumentIngestor()
         doc_ingestor.run_from_api(file_content, filename, extension)
@@ -155,4 +155,4 @@ async def delete_database():
         raise HTTPException(status_code=500, detail="Failed to clear the database.")
 
 if __name__ == "__main__":
-    uvicorn.run("main:app",host="0.0.0.0", port =8000, reload = True)
+    uvicorn.run("main:app",host="0.0.0.0", port =8001, reload = True)

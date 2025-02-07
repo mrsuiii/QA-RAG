@@ -1,10 +1,12 @@
 from langchain.prompts import PromptTemplate
 from langchain_chroma import Chroma
-from config import PERSIST_DIRECTORY
-from utils import get_embedding_model
 from langchain_ollama import OllamaLLM
 import tiktoken
-
+import chromadb
+from chromadb.config import Settings
+from langchain_community.embeddings.sentence_transformer import (
+    SentenceTransformerEmbeddings,
+)
 def robust_count_tokens(text: str, model: str = "llama3.2:1b"):
     """
     Count tokens in a given text using tiktoken.
@@ -45,9 +47,10 @@ Question: {question}
 Answer (with citations): 
 """
         self.query = "what is the objective of the game?" if query is None else query 
+        self.embedding = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+        client = chromadb.HttpClient(host="chroma", port=8000, settings=Settings(allow_reset=True))
 
-        self.db = Chroma(persist_directory=PERSIST_DIRECTORY, embedding_function=get_embedding_model())
-
+        self.db = Chroma(client=client, collection_name="my_collection", embedding_function = self.embedding )
     def find_relevant_docs(self):
         """ Find the relevant documents based on the query"""
         relevant_docs = self.db.similarity_search_with_score(self.query,k= 5)
@@ -86,7 +89,11 @@ Answer (with citations):
         Returns: response_text : str
 
         """
-        model = OllamaLLM(model = "llama3.2:1b",temperature=0.1)
+        model = OllamaLLM(
+            base_url="http://ollama:11434/api/generate",
+    model="llama3.2:1b",
+    temperature=0.1,
+)
         response_text =model.invoke(prompt_formated)
         return response_text
     

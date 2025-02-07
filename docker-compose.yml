@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  app:
+    build: src
+    
+    env_file: ".env"
+    ports:
+      - "8001:8001"  
+    volumes:
+      - .:/code
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8001 --reload
+    restart: always
+    depends_on: 
+      - ollama
+      - chroma
+    networks:
+      - app_net
+
+  ollama:
+    build: ollama
+    
+    ports:
+      - "7869:11434"
+    volumes:
+      - .:/code
+    container_name: ollama
+    restart: always
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    networks:
+      - app_net
+    entrypoint: ["/usr/bin/bash", "/pull-llama3.sh"]
+
+  chroma:
+    image: chromadb/chroma:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src/embeddings_store:/chroma/chroma
+    networks:
+      - app_net
+
+networks:
+  app_net:
+    driver: bridge

@@ -2,12 +2,14 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.document_loaders import UnstructuredMarkdownLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
-from config import DOCUMENT_PATH, OLLAMA_URL, PERSIST_DIRECTORY
+import chromadb
 from langchain.schema.document import Document
-import shutil
-from langchain_huggingface import HuggingFaceEmbeddings
 import os
 import tempfile
+from chromadb.config import Settings
+from langchain_community.embeddings.sentence_transformer import (
+    SentenceTransformerEmbeddings,
+)
 class DocumentIngestor:
 
     """
@@ -15,9 +17,15 @@ class DocumentIngestor:
     """
     def __init__(self):
         # self.embedding = OllamaEmbeddings(model = "llama3.2:1b")
-        self.embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+        # self.embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
         # self.embedding = OllamaEmbeddings(model = "nomic-embed-text")
-        self.vs = Chroma(persist_directory= PERSIST_DIRECTORY,embedding_function = self.embedding)
+        
+        self.embedding = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+        # self.vs = Chroma(persist_directory= PERSIST_DIRECTORY,embedding_function = self.embedding)
+
+        client = chromadb.HttpClient(host="chroma", port=8000, settings=Settings(allow_reset=True))
+
+        self.vs = Chroma(client=client, collection_name="my_collection", embedding_function = self.embedding )
         self.text_splitter = RecursiveCharacterTextSplitter(chunk_size = 800, chunk_overlap = 80, length_function = len,is_separator_regex=False )
         
     def load_documents(self, doc_path: str, doc_type: str):
@@ -92,35 +100,21 @@ class DocumentIngestor:
             chunk.metadata["id"] = chunk_id
 
         return chunks
-    def run(self):
-        """
-        run the document ingestion manually (not from the API)
-        """
-        documents = self.load_documents(DOCUMENT_PATH, "pdf")
-        chunks = self.split_documents(documents)
-        self.embed_to_vs(chunks)
     def run_from_api(self, file_content: bytes, filename: str, extension: str):
-        """
-        Writes the uploaded file content to a temporary file,
-        then processes it by loading, splitting, and embedding its documents.
-        
-        Parameters:
-            file_content (bytes): The binary content of the uploaded file.
-            filename (str): The name of the file.
-            extension (str): The file extension (e.g., "pdf" or "md").
-        """
-        # Create a temporary directory (auto-deleted after use)
+    # Create a temporary directory
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_file_path = os.path.join(temp_dir, filename)
-            
-            # Write the binary content to the temporary file.
             with open(temp_file_path, "wb") as temp_file:
                 temp_file.write(file_content)
             
             # Process the file.
             documents = self.load_documents(temp_file_path, extension)
+            # Normalize the source in each document to the original filename
+            for doc in documents:
+                doc.metadata["source"] = filename
             chunks = self.split_documents(documents)
             self.embed_to_vs(chunks)
+
             
     def clear_database(self) -> int:
         """
@@ -148,20 +142,22 @@ class DocumentIngestor:
         except Exception as e:
             print(f"Error clearing the database: {e}")
             raise e
-    def delete_directory(self):
-        if os.path.exists(PERSIST_DIRECTORY):
-            shutil.rmtree(PERSIST_DIRECTORY)
-            print(f"Deleted directory: {PERSIST_DIRECTORY}")
+        
+    # def delete_directory(self):
+    #     if os.path.exists(PERSIST_DIRECTORY):
+    #         shutil.rmtree(PERSIST_DIRECTORY)
+    #         print(f"Deleted directory: {PERSIST_DIRECTORY}")
+
     def check(self):
         """Check the number of documents in the vector store."""
         print(len(self.vs.get()['documents']))
 
 if __name__ == "__main__":
     di = DocumentIngestor()
-    # di.check()
-    try:
-        num_deleted = di.clear_database()
-        print(f"Clear database successful: {num_deleted} vectors deleted.")
-    except Exception as err:
-        print(f"Error: {err}")
+    di.check()
+    # try:
+        # num_deleted = di.clear_database()
+    #     print(f"Clear database successful: {num_deleted} vectors deleted.")
+    # except Exception as err:
+    #     print(f"Error: {err}")
     
