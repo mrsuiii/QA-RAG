@@ -15,7 +15,7 @@ def query_and_validate(question: str, expected_response: str) -> bool:
     """
     # Generate the actual response using your retrieval agent
     agent = Retrivial(question)
-    response_text = agent.run()
+    response_text,_,_ = agent.run()
 
     # Prepare the evaluation prompt
     prompt = EVAL_PROMPT.format(
@@ -63,6 +63,11 @@ def run_tests():
             "name": "Ticket to Ride Rules",
             "question": "How many points does the longest continuous train get in Ticket to Ride? (Answer with the number only)",
             "expected_response": "10 points",
+        },
+        {
+            "name":"Land in tax",
+            "question": "what should i do if i land in income tax",
+            "expected_response": "You may estimate your tax at $900 and pay the Bank, or you may pay 10% \of your total worth to the Bank"
         }
     ]
 
